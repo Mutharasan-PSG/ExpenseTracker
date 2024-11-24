@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+    }
+    .navbar {
+      background-color: #333;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      color: white;
+    }
+    .navbar a {
+      color: white;
+      padding: 10px;
+      text-decoration: none;
+      font-size: 18px;
+    }
+    .navbar a:hover {
+      background-color: #575757;
+    }
+    .dashboard-container {
+      padding: 20px;
+    }
+    .welcome-message {
+      font-size: 24px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div>ExpenseTracker</div>
+    <div>
+      <a href="/logout">Logout</a>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <h2 class="welcome-message">Welcome to your Dashboard!</h2>
+    <p>Your personal finance management tools are ready to use.</p>
+  </div>
+
+</body>
+</html>
