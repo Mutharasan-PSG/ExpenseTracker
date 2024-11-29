@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Income</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+
+   <!-- Sidebar -->
+   <aside class="fixed top-0 left-0 h-full bg-gray-900 w-64 text-white">
+    <div class="flex items-center justify-center h-20 border-b border-gray-700">
+      <span class="text-2xl font-semibold">Expense Tracker</span>
+    </div>
+    <nav class="mt-4">
+      <a href="dashboard.html" class="block py-3 px-6 hover:bg-gray-700 transition">Dashboard</a>
+      <div class="group">
+        <a href="#" class="block py-3 px-6 hover:bg-gray-700 transition">Income</a>
+        <div class="hidden group-hover:block bg-gray-800 pl-6">
+          <a href="AddIncome.html" class="block py-2 px-6 hover:bg-gray-700 transition">Add Income</a>
+          <a href="UpdateIncome.html" class="block py-2 px-6 hover:bg-gray-700 transition">Update Income</a>
+          <a href="DeleteIncome.html" class="block py-2 px-6 hover:bg-gray-700 transition">Delete Income</a>
+        </div>
+      </div>
+      <div class="group">
+        <a href="#" class="block py-3 px-6 hover:bg-gray-700 transition">Expense</a>
+        <div class="hidden group-hover:block bg-gray-800 pl-6">
+          <a href="AddExpense.html" class="block py-2 px-6 hover:bg-gray-700 transition">Add Expense</a>
+          <a href="UpdateExpense.html" class="block py-2 px-6 hover:bg-gray-700 transition">Update Expense</a>
+          <a href="DeleteExpense.html" class="block py-2 px-6 hover:bg-gray-700 transition">Delete Expense</a>
+        </div>
+      </div>
+    </nav>
+  </aside>
+
+
+  <!-- Main Content -->
+  <main class="ml-64 min-h-screen p-6 bg-gray-100">
+    <!-- Header -->
+    <header class="flex justify-between items-center bg-white p-6 shadow rounded-lg">
+      <h1 id="welcome-message" class="text-xl font-semibold">Welcome, <span id="username">User</span>!</h1>
+      <a href="/logout" class="text-blue-500 hover:text-blue-700 font-medium">Logout</a>
+    </header>
+
+    <!-- Add Income Form -->
+    <section class="mt-8 bg-white rounded-lg shadow p-6">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">Add New Income</h2>
+      <form id="add-income-form" enctype="multipart/form-data">
+        <!-- Income Amount -->
+        <div class="mb-4">
+          <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
+          <input type="number" id="amount" name="amount" required step="0.01" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter amount">
+        </div>
+
+        <!-- Category -->
+        <div class="mb-4">
+          <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
+          <select id="category" name="category" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">Select Category</option>
+            <option value="Salary">Salary</option>
+            <option value="Freelance">Freelance</option>
+            <option value="Gift">Gift</option>
+            <option value="Investment">Investment</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Description (Optional) -->
+        <div class="mb-4">
+          <label for="description" class="block text-sm font-medium text-gray-700">Description (Optional)</label>
+          <textarea id="description" name="description" rows="4" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter description (optional)"></textarea>
+        </div>
+
+        <!-- Date -->
+        <div class="mb-4">
+          <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+          <input type="date" id="date" name="date" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+
+        <!-- Image Upload (Optional) -->
+        <div class="mb-4">
+          <label for="image" class="block text-sm font-medium text-gray-700">Upload Image (Optional)</label>
+          <input type="file" id="image" name="image" accept="image/*" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+
+        <!-- Submit Button -->
+        <div class="mb-4">
+          <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">Add Income</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Notification Area -->
+    <div id="notification" class="fixed top-5 left-1/2 transform -translate-x-1/2 p-4 text-white rounded-lg opacity-0 translate-y-5 transition-all"></div>
+
+  </main>
+
+  <script>
+
+    // Fetch the username from session data
+    fetch('/api/getUsername')
+      .then(response => response.json())
+      .then(data => {
+        if (data.username) {
+          document.getElementById('username').textContent = data.username;
+        } else {
+          document.getElementById('username').textContent = 'Guest';
+        }
+      });
+
+    // Function to show notification
+    const showNotification = (message, type = 'success') => {
+      const notification = document.getElementById('notification');
+      
+      // Set the message text
+      notification.textContent = message;
+    
+      // Set the background color based on the type (success or error)
+      if (type === 'error') {
+        notification.classList.remove('bg-green-500');
+        notification.classList.add('bg-red-500');
+      } else {
+        notification.classList.remove('bg-red-500');
+        notification.classList.add('bg-green-500');
+      }
+    
+      // Show the notification with animation
+      notification.classList.remove('opacity-0', 'translate-y-5');
+      notification.classList.add('opacity-100', 'translate-y-0');
+    
+      // Hide the notification after 3 seconds
+      setTimeout(() => {
+        notification.classList.remove('opacity-100', 'translate-y-0');
+        notification.classList.add('opacity-0', 'translate-y-5');
+      }, 3000); // Hides the notification after 3 seconds
+    };
+
+    // Handling form submission via Fetch API
+    const form = document.getElementById('add-income-form');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+    
+      const formData = new FormData(form);
+    
+      try {
+        const response = await fetch('/api/addIncome', {
+          method: 'POST',
+          body: formData,
+        });
+    
+        const result = await response.json();
+        
+        if (result.message === "Income added successfully!") {
+          showNotification('Income added successfully!', 'success');
+          form.reset();
+          
+          // Display the uploaded image
+          if (result.income.image) {
+            const imagePreview = document.createElement('img');
+            imagePreview.src = result.income.image; // Use the image path from the response
+            imagePreview.alt = "Uploaded Image";
+            imagePreview.className = "w-32 h-32 mt-4 rounded-lg shadow";
+            document.body.appendChild(imagePreview);
+          }
+        } else {
+          showNotification('Failed to add income. Please try again.', 'error');
+        }
+      } catch (error) {
+        showNotification('Error occurred. Please try again later.', 'error');
+        console.error(error);
+      }
+    });
+    
+  </script>
+
+</body>
+</html>
