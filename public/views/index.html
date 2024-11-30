@@ -18,8 +18,9 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 1000; /* Ensures it appears above all other content */
+      z-index: 800;  /* Ensures it appears above all other content */
     }
+    
 
     /* Modal Box Styling */
     .modal-box {
@@ -98,9 +99,11 @@
     .btn-submit:hover {
       background-color: #2563EB;
     }
+
   </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
+  
   <!-- Navbar -->
   <header class="bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-500 text-white shadow-md">
     <div class="navbar-container">
@@ -208,6 +211,7 @@
   <div id="loginModal" class="modal-overlay hidden">
     <div class="modal-box">
       <h2>Login</h2>
+      
       <form id="loginForm"> <!-- Add this ID -->
 
         <input type="email" id="email"placeholder="Email" class="input-field" required />
@@ -217,12 +221,15 @@
       <p class="mt-4">Don't have an account? 
         <a id="goToSignup" class="text-indigo-600 hover:underline cursor-pointer">Sign Up</a>
       </p>
+      <div id="loginStatus" class="hidden text-center mb-4 text-sm font-bold"></div>
     </div>
+   
   </div>
   
   <div id="signupModal" class="modal-overlay hidden">
     <div class="modal-box">
       <h2>Sign Up</h2>
+     
       <form id="signupForm"> <!-- Add this ID -->
         <input type="text" id="signupUsername" class="input-field w-full mb-4" placeholder="Username" required>
         <input type="email" id="signupEmail" placeholder="Email" class="input-field" required />
@@ -232,7 +239,9 @@
       <p class="mt-4">Already have an account? 
         <a id="goToLogin" class="text-indigo-600 hover:underline cursor-pointer">Login</a>
       </p>
+      <div id="signupStatus" class="hidden text-center mb-4 text-sm font-bold"></div>
     </div>
+    
   </div>
 
   <script src="/js/modals.js" defer></script>

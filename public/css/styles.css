@@ -936,3 +936,13 @@ video {
 .hidden {
   display: none;
 }
+
+/* Add this to your CSS file */
+.text-green-light {
+  color: #49c449;  /* Light Green color */
+}
+.text-red-error {
+  color: #EF4444;  /* Red color */
+}
+
+

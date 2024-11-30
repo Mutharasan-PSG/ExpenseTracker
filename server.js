@@ -5,6 +5,7 @@ const path = require('path');
 require('dotenv').config();
 const Income = require('./models/Income'); // Assuming you have this model file created
 const multer = require('multer'); // To handle file uploads
+const router = express.Router();
 
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
@@ -64,17 +65,20 @@ app.get('/api/getUsername', (req, res) => {
   }
 });
 
+
 app.get('/views/login.html', (req, res) => {
   const filePath = path.join(__dirname, 'public', 'views', 'login.html');
   console.log(`Serving file: ${filePath}`);
   res.sendFile(filePath);
 });
 
+
 app.get('/views/signup.html', (req, res) => {
   const filePath = path.join(__dirname, 'public', 'views', 'signup.html');
   console.log(`Serving file: ${filePath}`);
   res.sendFile(filePath);
 });
+
 
 // Multer Configuration for Image Upload
 const storage = multer.diskStorage({
@@ -86,7 +90,11 @@ const storage = multer.diskStorage({
     cb(null, `${Date.now()}${ext}`); // Use timestamp to ensure unique filenames
   },
 });
+
+
 const upload = multer({ storage });
+
+
 // API to add income
 app.post('/api/addIncome', upload.single('image'), (req, res) => {
  
@@ -132,6 +140,64 @@ app.get('/api/getTransactions', (req, res) => {
     });
 });
 
+
+// Route to get transaction details
+app.get('/api/getIncome/:id', async (req, res) => {
+  try {
+    const transaction = await Income.findById(req.params.id);
+    if (!transaction) {
+      return res.status(404).json({ message: 'Transaction not found' });
+    }
+    res.json({ income: transaction });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching income' });
+  }
+});
+
+
+
+// Route to update transaction
+app.post('/api/updateIncome', upload.single('image'), async (req, res) => {
+  const { amount, category, description, date, id } = req.body;
+
+  try {
+    const income = await Income.findById(id);
+    if (!income) {
+      return res.status(404).json({ message: 'Transaction not found' });
+    }
+
+    income.amount = amount;
+    income.category = category;
+    income.description = description;
+    income.date = new Date(date);
+
+    if (req.file) {
+      income.image = `/uploads/${req.file.filename}`; // Update image path
+    }
+
+    await income.save();
+    res.json({ message: 'Income updated successfully!', income });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to update income' });
+  }
+});
+
+// Route to delete transaction
+app.delete('/api/deleteIncome/:id', async (req, res) => {
+    try {
+        const incomeId = req.params.id;
+        await Income.findByIdAndDelete(incomeId);
+        res.json({ success: true, message: 'Income deleted successfully!' });
+    } catch (err) {
+        console.error('Error deleting income:', err);
+        res.status(500).json({ success: false, message: 'Failed to delete the income.' });
+    }
+});
+
+
+
 // Logout route (destroy session)
 app.get('/logout', (req, res) => {
   req.session.destroy((err) => {
@@ -141,6 +207,110 @@ app.get('/logout', (req, res) => {
     res.redirect('/'); // Redirect to login after logout
   });
 });
+
+
+// Import the Expense model
+const Expense = require('./models/Expense');
+
+// API to add an expense
+app.post('/api/addExpense', upload.single('image'), (req, res) => {
+  console.log('File upload attempt:', req.file); // Log uploaded file details
+
+  if (!req.file) {
+    return res.status(400).json({ message: 'File upload failed!' });
+  }
+
+  const { amount, category, description, date } = req.body;
+  const userId = req.session.user._id; // Assuming the user object is stored in the session
+
+  const expense = new Expense({
+    amount,
+    category,
+    description,
+    date,
+    image: req.file ? `/uploads/${req.file.filename}` : null, // Use relative URL for image path
+    userId,
+  });
+
+  expense.save()
+    .then((newExpense) => {
+      res.status(201).json({ message: 'Expense added successfully!', expense: newExpense });
+    })
+    .catch((error) => {
+      res.status(500).json({ message: 'Error adding expense', error });
+    });
+});
+
+// API to fetch expenses for the dashboard
+app.get('/api/getExpense', (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  Expense.find({ userId: req.session.user._id })
+    .then((expenses) => {
+      res.json(expenses);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: 'Error fetching expenses', err });
+    });
+});
+
+// Route to get expense details
+app.get('/api/getExpense/:id', async (req, res) => {
+  try {
+    const expense = await Expense.findById(req.params.id);
+    if (!expense) {
+      return res.status(404).json({ message: 'Expense not found' });
+    }
+    res.json({ expense });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching expense' });
+  }
+});
+
+// Route to update expense
+app.post('/api/updateExpense', upload.single('image'), async (req, res) => {
+  const { amount, category, description, date, id } = req.body;
+
+  try {
+    const expense = await Expense.findById(id);
+    if (!expense) {
+      return res.status(404).json({ message: 'Expense not found' });
+    }
+
+    expense.amount = amount;
+    expense.category = category;
+    expense.description = description;
+    expense.date = new Date(date);
+
+    if (req.file) {
+      expense.image = `/uploads/${req.file.filename}`; // Update image path
+    }
+
+    await expense.save();
+    res.json({ message: 'Expense updated successfully!', expense });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to update expense' });
+  }
+});
+
+// Route to delete expense
+app.delete('/api/deleteExpense/:id', async (req, res) => {
+  try {
+      const expenseId = req.params.id;
+      await Expense.findByIdAndDelete(expenseId);
+      res.json({ success: true, message: 'Expense deleted successfully!' });
+  } catch (err) {
+      console.error('Error deleting expense:', err);
+      res.status(500).json({ success: false, message: 'Failed to delete the expense.' });
+  }
+});
+
+
+
 
 // Start server
 app.listen(PORT, () => {
