@@ -310,7 +310,68 @@ app.delete('/api/deleteExpense/:id', async (req, res) => {
 });
 
 
+// API Route for Data Visualization
+// API Route for Data Visualization
+app.get('/api/visualizeData', async (req, res) => {
+  const { dataType, startDate, endDate } = req.query;
 
+  try {
+    // Parse date range
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999); // Set end of day for the date range
+
+    // Initialize variables
+    let incomeData = [];
+    let expenseData = [];
+    let combinedCategories = [];
+    let combinedData = [];
+
+    // Fetch income data if applicable
+    if (dataType === 'income' || dataType === 'both') {
+      incomeData = await Income.find({
+        date: { $gte: start, $lte: end }
+      }).sort({ date: 1 }) || []; // Ensure incomeData is always an array
+    }
+
+    // Fetch expense data if applicable
+    if (dataType === 'expense' || dataType === 'both') {
+      expenseData = await Expense.find({
+        date: { $gte: start, $lte: end }
+      }).sort({ date: 1 }) || []; // Ensure expenseData is always an array
+    }
+
+    // Add unique categories from both income and expense
+    combinedCategories = [
+      ...new Set([
+        ...incomeData.map(i => i.category),
+        ...expenseData.map(e => e.category)
+      ])
+    ];
+
+    // Calculate total data for each category
+    combinedData = combinedCategories.map(category => {
+      const incomeSum = incomeData
+        .filter(i => i.category === category)
+        .reduce((sum, item) => sum + item.amount, 0);
+
+      const expenseSum = expenseData
+        .filter(e => e.category === category)
+        .reduce((sum, item) => sum + item.amount, 0);
+
+      return incomeSum + expenseSum; // Total amount for the category
+    });
+
+    // Respond with processed data
+    res.json({
+      categories: combinedCategories,
+      data: combinedData
+    });
+  } catch (error) {
+    console.error('Error fetching visualization data:', error);
+    res.status(500).send('Server Error');
+  }
+});
 
 // Start server
 app.listen(PORT, () => {
