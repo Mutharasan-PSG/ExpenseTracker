@@ -19,7 +19,7 @@ const closeModals = () => {
   signupModal.classList.add("hidden");
 };
 
-document.getElementById("getStartedButton").addEventListener("click", openLoginModal);
+//document.getElementById("getStartedButton").addEventListener("click", openLoginModal);
 document.getElementById("startTrackingButton").addEventListener("click", openLoginModal);
 
 document.getElementById("goToSignup").addEventListener("click", openSignupModal);

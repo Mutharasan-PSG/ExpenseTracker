@@ -5,60 +5,178 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Data Visualization</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+  
+    }
+  
+    .sidebar-bg {
+      background: linear-gradient(135deg, #2c3e50, #4ca1af);
+    }
+
+    .hover-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .hover-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .actions button {
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .actions button:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+     
+    .logo {
+      font-size: 2rem;
+      font-weight: 700;
+      max-width: 200px;  /* Adjust the maximum width as per your design */
+      height: auto;  /* Maintain aspect ratio */
+      width: 100%;  /* Makes the image responsive */
+    }
+
+   
+
+    /* Data Selector */
+    .selector-section {
+      
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+    }
+    .selector-section label {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #555;
+    }
+    .selector-section select,
+    .selector-section input {
+      margin-top: 10px;
+      width: 85%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      color: #333;
+      background-color: #fff;
+    }
+    .selector-section select:focus,
+    .selector-section input:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+    .visualize-btn {
+      transform: translateX(160%); /* Fine-tune the centering */
+      width: 70%;
+      background-color: #007bff;
+      font-weight: bold;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .visualize-btn:hover {
+      background-color: #0056b3;
+    }
+
+    /* Chart Container */
+    .chart-container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-top: 30px;
+    }
+
+  </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800">
+
+<body>
+  <div class="flex">
   <!-- Sidebar -->
-  <aside class="fixed top-0 left-0 h-full bg-gray-900 w-64 text-white">
-    <div class="flex items-center justify-center h-20 border-b border-gray-700">
-      <span class="text-2xl font-semibold">Expense Tracker</span>
+  <aside class="fixed top-0 left-0 h-full w-64 sidebar-bg text-white shadow-lg">
+    <div class="flex items-center justify-center h-20 border-b border-black">
+      <img src="assets/TracEase.png"alt="Expense Tracker" class="logo">
     </div>
-    <nav class="mt-4">
-      <a href="dashboard.html" class="block py-3 px-6 hover:bg-gray-700 transition">Dashboard</a>
-      <a href="visualization.html" class="block py-3 px-6 hover:bg-gray-700 transition">Income & Expense Visualization</a>
+    <nav class="mt-4 space-y-1">
+      <a href="dashboard.html" class="block py-3 px-6 hover-link rounded">🏠 Dashboard</a>
+      <a href="AddIncome.html" class="block py-3 px-6 hover-link rounded">💰 Add Income</a>
+      <a href="AddExpense.html" class="block py-3 px-6 hover-link rounded">📉 Add Expense</a>
+      <a href="visualization.html" class="block py-3 px-6 hover-link rounded">📊 Visualize</a>
     </nav>
   </aside>
 
-  <!-- Main Content -->
-  <main class="ml-64 min-h-screen p-6 bg-gray-100">
+
+   <!-- Main Content -->
+   <main class="ml-64 min-h-screen p-8 bg-gray-100">
     <!-- Header -->
-    <header class="flex justify-between items-center bg-white p-6 shadow rounded-lg">
-      <h1 class="text-xl font-semibold">Income & Expense Visualization</h1>
+    <header class="flex justify-between items-center bg-gradient-to-r from-blue-600 to-indigo-780 text-white p-6 shadow-lg rounded-lg">
+      <h1 class="text-2xl font-semibold">Data Visualization</h1>
+      <a href="/logout" class="flex items-center text-black font-medium hover:underline">
+        <img src="assets/logo.png" alt="Logo" class="w-6 h-6 mr-2"> Logout
+      </a>
     </header>
 
-    <!-- Data Selector -->
-    <section class="mt-8 bg-white p-6 rounded-lg shadow">
-      <div class="flex items-center justify-between">
-        <label for="dataType" class="text-gray-700">Select Data Type</label>
-        <select id="dataType" class="border-gray-300 rounded-md p-2">
-          <option value="both">Both Income & Expense</option>
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
-        </select>
+    <br>    
 
-        <label for="chartType" class="ml-6 text-gray-700">Select Chart Type</label>
-        <select id="chartType" class="border-gray-300 rounded-md p-2">
-          <option value="bar">Bar Chart</option>
-          <option value="pie">Pie Chart</option>
-          <option value="line">Line Chart</option>
-        </select>
+      <!-- Data Selector -->
+      <section class="selector-section">
+        <div>
+          <label for="dataType">Select Data Type</label>
+          <select id="dataType">
+            <option value="both">Both Income & Expense</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+        </div>
 
-        <label for="dateRange" class="ml-6 text-gray-700">Select Date Range</label>
-        <label for="startDate" class="block text-sm font-medium text-gray-700">Start Date</label>
-        <input type="date" id="startDate" name="startDate" class="border-gray-300 rounded-md p-2" placeholder="Select start date" title="Select the start date of the event">
-        
-        <label for="endDate" class="block text-sm font-medium text-gray-700">End Date</label>
-        <input type="date" id="endDate" name="endDate" class="border-gray-300 rounded-md p-2 ml-2" placeholder="Select end date" title="Select the end date of the event">
-        
-        <button onclick="loadChartData()" class="bg-blue-500 text-white px-4 py-2 rounded-md">Visualize</button>
-      </div>
-    </section>
+        <div>
+          <label for="chartType">Select Chart Type</label>
+          <select id="chartType">
+            <option value="bar">Bar Chart</option>
+            <option value="pie">Pie Chart</option>
+            <option value="line">Line Chart</option>
+          </select>
+        </div>
 
-    <!-- Chart Container -->
-    <section class="mt-10 bg-white p-6 rounded-lg shadow">
-      <canvas id="incomeExpenseChart"></canvas>
-    </section>
-  </main>
+        <div>
+          <label for="dateRange">Select Date Range</label>
+          
+          <div>
+            <br>
+            <label for="startDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+            <input type="date" id="startDate" name="startDate" placeholder="Select start date">
+          </div><br>
+          <div>
+            <label for="endDate" class="block text-sm font-medium text-gray-700">End Date</label>
+            <input type="date" id="endDate" name="endDate" placeholder="Select end date">
+          </div>
+        </div>
+
+        <button onclick="loadChartData()" class="visualize-btn">Visualize</button>
+      </section>
+
+      <!-- Chart Container -->
+      <section class="chart-container">
+        <canvas id="incomeExpenseChart"></canvas>
+      </section>
+    </main>
+  </div>
 
   <script>
     const ctx = document.getElementById('incomeExpenseChart').getContext('2d');
@@ -149,8 +267,5 @@
         });
     };
   </script>
-  
-  
 </body>
 </html>
-

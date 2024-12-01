@@ -36,6 +36,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Serve uploaded images from 'public/uploads'
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
+app.use('/assets', express.static(path.join(__dirname, 'public/views/assets')));
+
+
 // Routes
 // Serve HTML page
 app.get('/', (req, res) => {
@@ -125,20 +128,41 @@ app.post('/api/addIncome', upload.single('image'), (req, res) => {
     });
 });
 
-// API to fetch the transactions for the dashboard
-app.get('/api/getTransactions', (req, res) => {
+// API to fetch income transactions with filter and sorting options
+app.get('/api/getTranactions', (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 
-  Income.find({ userId: req.session.user._id })
+  const { monthYear, minAmount, maxAmount } = req.query;
+  
+  let filter = { userId: req.session.user._id, type: 'Income' };
+
+  if (monthYear) {
+    const [year, month] = monthYear.split('-');
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0);
+    filter = { ...filter, date: { $gte: startDate, $lt: endDate } };
+  }
+
+  if (minAmount || maxAmount) {
+    filter = { 
+      ...filter, 
+      amount: {} 
+    };
+    if (minAmount) filter.amount.$gte = parseFloat(minAmount);
+    if (maxAmount) filter.amount.$lte = parseFloat(maxAmount);
+  }
+
+  Income.find(filter)
     .then((transactions) => {
       res.json(transactions);
     })
     .catch((err) => {
-      res.status(500).json({ message: 'Error fetching transactions', err });
+      res.status(500).json({ message: 'Error fetching income transactions', err });
     });
 });
+
 
 
 // Route to get transaction details
@@ -241,20 +265,41 @@ app.post('/api/addExpense', upload.single('image'), (req, res) => {
     });
 });
 
-// API to fetch expenses for the dashboard
+// API to fetch expense transactions with filter and sorting options
 app.get('/api/getExpense', (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 
-  Expense.find({ userId: req.session.user._id })
-    .then((expenses) => {
-      res.json(expenses);
+  const { monthYear, minAmount, maxAmount } = req.query;
+  
+  let filter = { userId: req.session.user._id, type: 'Expense' };
+
+  if (monthYear) {
+    const [year, month] = monthYear.split('-');
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0);
+    filter = { ...filter, date: { $gte: startDate, $lt: endDate } };
+  }
+
+  if (minAmount || maxAmount) {
+    filter = { 
+      ...filter, 
+      amount: {} 
+    };
+    if (minAmount) filter.amount.$gte = parseFloat(minAmount);
+    if (maxAmount) filter.amount.$lte = parseFloat(maxAmount);
+  }
+
+  Expense.find(filter)
+    .then((transactions) => {
+      res.json(transactions);
     })
     .catch((err) => {
-      res.status(500).json({ message: 'Error fetching expenses', err });
+      res.status(500).json({ message: 'Error fetching expense transactions', err });
     });
 });
+
 
 // Route to get expense details
 app.get('/api/getExpense/:id', async (req, res) => {
