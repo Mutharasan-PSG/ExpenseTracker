@@ -14,7 +14,8 @@
     }
   
     .sidebar-bg {
-      background: linear-gradient(135deg, #2c3e50, #4ca1af);
+      background: linear-gradient(135deg, #eaeced,#1347cb);
+      font-size: 1.2rem;
     }
 
     .hover-link:hover {
@@ -114,10 +115,10 @@
       <img src="assets/TracEase.png"alt="Expense Tracker" class="logo">
     </div>
     <nav class="mt-4 space-y-1">
-      <a href="dashboard.html" class="block py-3 px-6 hover-link rounded">🏠 Dashboard</a>
-      <a href="AddIncome.html" class="block py-3 px-6 hover-link rounded">💰 Add Income</a>
-      <a href="AddExpense.html" class="block py-3 px-6 hover-link rounded">📉 Add Expense</a>
-      <a href="visualization.html" class="block py-3 px-6 hover-link rounded">📊 Visualize</a>
+      <a href="dashboard.html" class="block py-3 px-6 hover-link rounded">🏠 DASHBOARD</a>
+      <a href="AddIncome.html" class="block py-3 px-6 hover-link rounded">💰 ADD INCOME</a>
+      <a href="AddExpense.html" class="block py-3 px-6 hover-link rounded">📉 ADD EXPENSE</a>
+      <a href="visualization.html" class="block py-3 px-6 hover-link rounded">📊 VISUALIZE</a>
     </nav>
   </aside>
 
@@ -209,8 +210,11 @@
       const startDate = document.getElementById('startDate').value;
       const endDate = document.getElementById('endDate').value;
   
+// Assume the current user's session data is available (e.g., sessionStorage or a cookie)
+const userId = sessionStorage.getItem('userId');  // or fetch the user ID from a global variable or cookie
+
       // Fetch data from the API
-      fetch(`/api/visualizeData?dataType=${dataType}&startDate=${startDate}&endDate=${endDate}`)
+      fetch(`/api/visualizeData?dataType=${dataType}&startDate=${startDate}&endDate=${endDate}&userId=${userId}`)
         .then(response => {
           if (!response.ok) {
             throw new Error('Failed to fetch data from the server');

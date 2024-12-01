@@ -13,7 +13,8 @@
     }
 
     .sidebar-bg {
-      background: linear-gradient(135deg, #2c3e50, #4ca1af);
+      background: linear-gradient(135deg,#eaeced,#1347cb);
+      font-size: 1.2rem;
     }
 
     .logo {
@@ -137,10 +138,10 @@
       <img src="assets/TracEase.png"alt="Expense Tracker" class="logo">
     </div>
     <nav class="mt-4 space-y-1">
-      <a href="dashboard.html" class="block py-3 px-6 hover-link rounded">🏠 Dashboard</a>
-      <a href="AddIncome.html" class="block py-3 px-6 hover-link rounded">💰 Add Income</a>
-      <a href="AddExpense.html" class="block py-3 px-6 hover-link rounded">📉 Add Expense</a>
-      <a href="visualization.html" class="block py-3 px-6 hover-link rounded">📊 Visualize</a>
+      <a href="dashboard.html" class="block py-3 px-6 hover-link rounded">🏠 DASHBOARD</a>
+      <a href="AddIncome.html" class="block py-3 px-6 hover-link rounded">💰 ADD INCOME</a>
+      <a href="AddExpense.html" class="block py-3 px-6 hover-link rounded">📉 ADD EXPENSE</a>
+      <a href="visualization.html" class="block py-3 px-6 hover-link rounded">📊 VISUALIZE</a>
     </nav>
   </aside>
 
@@ -160,17 +161,17 @@
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
       <div class="hover-card">
         <h2 class="text-gray-500">CURRENT BALANCE</h2>
-        <p class="mt-2 text-2xl font-bold text-gray-900">$<span id="current-balance">0</span></p>
+        <p class="mt-2 text-2xl font-bold text-gray-900">₹<span id="current-balance">0</span></p>
         <h6 class="text-gray-400">Updated in Real-time</h6>
       </div>
       <div class="hover-card">
         <h2 class="text-gray-500">INCOME</h2>
-        <p class="mt-2 text-2xl font-bold text-green-600">$<span id="monthly-income">0</span></p>
+        <p class="mt-2 text-2xl font-bold text-green-600">₹<span id="monthly-income">0</span></p>
         <h6 class="text-gray-400">Based on Logged Entries</h6>
       </div>
       <div class="hover-card">
         <h2 class="text-gray-500">EXPENSE</h2>
-        <p class="mt-2 text-2xl font-bold text-red-600">$<span id="monthly-expenses">0</span></p>
+        <p class="mt-2 text-2xl font-bold text-red-600">₹<span id="monthly-expenses">0</span></p>
         <h6 class="text-gray-400">Calculated from Logs</h6>
       </div>
     </section>
@@ -307,7 +308,7 @@ const createTransactionRow = (transaction, isIncome) => {
   <td class="py-3 px-6">${description}</td>
   <td class="py-3 px-6">${image}</td>
   <td class="py-3 px-6 text-right ${amountClass}">
-    $${transaction.amount.toFixed(2)}
+    ₹${transaction.amount.toFixed(2)}
   </td>
    <td class="text-center"> <!-- Added text-center class -->
     <button class="text-blue-500 hover:text-blue-700 mr-2" onclick="editTransaction('${transaction._id}', ${isIncome})">Edit</button>

@@ -128,41 +128,20 @@ app.post('/api/addIncome', upload.single('image'), (req, res) => {
     });
 });
 
-// API to fetch income transactions with filter and sorting options
-app.get('/api/getTranactions', (req, res) => {
+// API to fetch the transactions for the dashboard
+app.get('/api/getTransactions', (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 
-  const { monthYear, minAmount, maxAmount } = req.query;
-  
-  let filter = { userId: req.session.user._id, type: 'Income' };
-
-  if (monthYear) {
-    const [year, month] = monthYear.split('-');
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0);
-    filter = { ...filter, date: { $gte: startDate, $lt: endDate } };
-  }
-
-  if (minAmount || maxAmount) {
-    filter = { 
-      ...filter, 
-      amount: {} 
-    };
-    if (minAmount) filter.amount.$gte = parseFloat(minAmount);
-    if (maxAmount) filter.amount.$lte = parseFloat(maxAmount);
-  }
-
-  Income.find(filter)
+  Income.find({ userId: req.session.user._id })
     .then((transactions) => {
       res.json(transactions);
     })
     .catch((err) => {
-      res.status(500).json({ message: 'Error fetching income transactions', err });
+      res.status(500).json({ message: 'Error fetching transactions', err });
     });
 });
-
 
 
 // Route to get transaction details
@@ -265,41 +244,20 @@ app.post('/api/addExpense', upload.single('image'), (req, res) => {
     });
 });
 
-// API to fetch expense transactions with filter and sorting options
+// API to fetch expenses for the dashboard
 app.get('/api/getExpense', (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 
-  const { monthYear, minAmount, maxAmount } = req.query;
-  
-  let filter = { userId: req.session.user._id, type: 'Expense' };
-
-  if (monthYear) {
-    const [year, month] = monthYear.split('-');
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0);
-    filter = { ...filter, date: { $gte: startDate, $lt: endDate } };
-  }
-
-  if (minAmount || maxAmount) {
-    filter = { 
-      ...filter, 
-      amount: {} 
-    };
-    if (minAmount) filter.amount.$gte = parseFloat(minAmount);
-    if (maxAmount) filter.amount.$lte = parseFloat(maxAmount);
-  }
-
-  Expense.find(filter)
-    .then((transactions) => {
-      res.json(transactions);
+  Expense.find({ userId: req.session.user._id })
+    .then((expenses) => {
+      res.json(expenses);
     })
     .catch((err) => {
-      res.status(500).json({ message: 'Error fetching expense transactions', err });
+      res.status(500).json({ message: 'Error fetching expenses', err });
     });
 });
-
 
 // Route to get expense details
 app.get('/api/getExpense/:id', async (req, res) => {
@@ -356,37 +314,49 @@ app.delete('/api/deleteExpense/:id', async (req, res) => {
 
 
 // API Route for Data Visualization
-// API Route for Data Visualization
 app.get('/api/visualizeData', async (req, res) => {
+  const userId = req.session.userId; // Retrieve user ID from the session
   const { dataType, startDate, endDate } = req.query;
+
+  // Ensure session is valid and user is logged in
+  if (!req.session.user) {
+    return res.status(401).json({ message: 'Unauthorized. Please log in.' });
+  }
+
+  // Ensure required query parameters are present
+  if (!dataType || !startDate || !endDate) {
+    return res.status(400).json({ message: 'Missing required query parameters: dataType, startDate, or endDate' });
+  }
 
   try {
     // Parse date range
     const start = new Date(startDate);
     const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999); // Set end of day for the date range
+    end.setHours(23, 59, 59, 999); // Set the end of the day for the date range
 
-    // Initialize variables
+    // Initialize variables for income and expense data
     let incomeData = [];
     let expenseData = [];
     let combinedCategories = [];
     let combinedData = [];
 
-    // Fetch income data if applicable
+    // Fetch income data for the logged-in user and within the date range
     if (dataType === 'income' || dataType === 'both') {
       incomeData = await Income.find({
+        userId: userId, // Ensure that we only fetch income for the current user
         date: { $gte: start, $lte: end }
-      }).sort({ date: 1 }) || []; // Ensure incomeData is always an array
+      }).sort({ date: 1 }) || []; // Default to an empty array if no data found
     }
 
-    // Fetch expense data if applicable
+    // Fetch expense data for the logged-in user and within the date range
     if (dataType === 'expense' || dataType === 'both') {
       expenseData = await Expense.find({
+        userId: userId, // Ensure that we only fetch expenses for the current user
         date: { $gte: start, $lte: end }
-      }).sort({ date: 1 }) || []; // Ensure expenseData is always an array
+      }).sort({ date: 1 }) || []; // Default to an empty array if no data found
     }
 
-    // Add unique categories from both income and expense
+    // Combine categories from both income and expense
     combinedCategories = [
       ...new Set([
         ...incomeData.map(i => i.category),
@@ -407,7 +377,7 @@ app.get('/api/visualizeData', async (req, res) => {
       return incomeSum + expenseSum; // Total amount for the category
     });
 
-    // Respond with processed data
+    // Respond with the processed data for visualization
     res.json({
       categories: combinedCategories,
       data: combinedData
@@ -417,6 +387,7 @@ app.get('/api/visualizeData', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
 
 // Start server
 app.listen(PORT, () => {
