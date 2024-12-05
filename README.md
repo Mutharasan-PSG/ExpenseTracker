@@ -3,7 +3,12 @@ The **Expense Tracker Web App** is a comprehensive tool that allows users to man
 Additionally, the app offers a feature to visualize income and expense data through interactive charts (Bar, Pie, and Line charts), giving users valuable insights into their financial habits.
 
 Tech Stack:
+
 Frontend: HTML, CSS, JavaScript
+
 Backend: Node.js, Express.js
+
 Database: MongoDB (with Mongoose for schema definitions)
+
 Data Visualization: Chart.js (for rendering interactive charts)
+
