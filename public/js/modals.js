@@ -5,11 +5,13 @@ const loginForm = document.getElementById("loginForm");
 
 
 const openLoginModal = () => {
+  clearModalForm(loginModal);
   loginModal.classList.remove("hidden");
   signupModal.classList.add("hidden");
 };
 
 const openSignupModal = () => {
+  clearModalForm(loginModal);
   signupModal.classList.remove("hidden");
   loginModal.classList.add("hidden");
 };
@@ -17,6 +19,13 @@ const openSignupModal = () => {
 const closeModals = () => {
   loginModal.classList.add("hidden");
   signupModal.classList.add("hidden");
+};
+
+const clearModalForm = (modal) => {
+  const form = modal.querySelector("form");
+  if (form) form.reset(); // Clear input fields
+  const statusDiv = modal.querySelector("#" + (modal.id === "loginModal" ? "loginStatus" : "signupStatus"));
+  if (statusDiv) statusDiv.classList.add("hidden"); // Hide status messages
 };
 
 //document.getElementById("getStartedButton").addEventListener("click", openLoginModal);
@@ -49,6 +58,8 @@ const showModalStatus = (modal, message, type) => {
   }, 3000);
 };
 
+
+
 // Handle signup form submission
 // Signup Form Submission Handler
 signupForm.addEventListener("submit", async (e) => {
@@ -64,7 +75,7 @@ signupForm.addEventListener("submit", async (e) => {
   }
 
   if (password.length < 8) {
-    showModalStatus(signupModal, "Password must be at least 8 characters.", "error");
+    showModalStatus(signupModal, "Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a number, and a special character.", "error");
     return;
   }
 
@@ -78,9 +89,13 @@ signupForm.addEventListener("submit", async (e) => {
     const data = await response.json();
 
     if (response.ok) {
-      showModalStatus(signupModal, "Signup successful! Redirecting to login.", "success");
-      setTimeout(openLoginModal, 2000);
-    } else {
+      showModalStatus(signupModal, "Signup successful! Redirecting...", "success");
+      setTimeout(() => {
+        openLoginModal();
+        showModalStatus(loginModal, "You can now log in with your credentials.", "success");
+      }, 1000);
+    }
+    else {
       showModalStatus(signupModal, data.message || "Signup failed.", "error");
     }
   } catch (err) {

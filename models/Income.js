@@ -12,7 +12,7 @@ const incomeSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: false
+    default:''
   },
   date: {
     type: Date,
@@ -20,7 +20,7 @@ const incomeSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    required: false
+    default: null,
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,

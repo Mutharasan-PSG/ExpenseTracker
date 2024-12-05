@@ -53,6 +53,7 @@ app.get('/dashboard', (req, res) => {
   if (req.session.user) {
     const filePath = (path.join(__dirname, 'public', 'views', 'dashboard.html')); // Correct path to dashboard.html
     console.log(`Serving file: ${filePath}`);
+
     res.sendFile(filePath);
   } else {
     res.redirect('/'); // If not logged in, redirect to index page
@@ -72,6 +73,7 @@ app.get('/api/getUsername', (req, res) => {
 app.get('/views/login.html', (req, res) => {
   const filePath = path.join(__dirname, 'public', 'views', 'login.html');
   console.log(`Serving file: ${filePath}`);
+
   res.sendFile(filePath);
 });
 
@@ -89,10 +91,10 @@ const storage = multer.diskStorage({
     cb(null, path.join(__dirname, 'public/uploads')); // Save in 'uploads' directory
   },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname); // Preserve the file extension
-    cb(null, `${Date.now()}${ext}`); // Use timestamp to ensure unique filenames
-  },
+    cb(null, `${Date.now()}-${file.originalname}`); // Unique filename
+  }
 });
+
 
 
 const upload = multer({ storage });
@@ -101,13 +103,13 @@ const upload = multer({ storage });
 // API to add income
 app.post('/api/addIncome', upload.single('image'), (req, res) => {
  
-  console.log('File upload attempt:', req.file); // Log uploaded file details
+  //console.log('File upload attempt:', req.file); // Log uploaded file details
 
-  if (!req.file) {
+ /* if (!req.file) {
     return res.status(400).json({ message: 'File upload failed!' });
-  }
+  } */
  
-  const { amount, category, description, date } = req.body;
+  const { amount, category, description='', date } = req.body;
   const userId = req.session.user._id; // Assuming the user object is stored in the session
 
   const income = new Income({
@@ -115,7 +117,7 @@ app.post('/api/addIncome', upload.single('image'), (req, res) => {
     category,
     description,
     date,
-    image: req.file ? `/uploads/${req.file.filename}` : null, // Use relative URL for image path
+    image: req.file ? `/uploads/${req.file.filename}` : null,
     userId,
   });
 
@@ -127,14 +129,21 @@ app.post('/api/addIncome', upload.single('image'), (req, res) => {
       res.status(500).json({ message: 'Error adding income', error });
     });
 });
-
-// API to fetch the transactions for the dashboard
+// API to fetch transactions for the dashboard
 app.get('/api/getTransactions', (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 
-  Income.find({ userId: req.session.user._id })
+  const { startDate, endDate } = req.query;
+  const filter = { userId: req.session.user._id };
+
+  // If startDate and endDate are provided, filter the transactions by date range
+  if (startDate && endDate) {
+    filter.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
+  }
+
+  Income.find(filter)
     .then((transactions) => {
       res.json(transactions);
     })
@@ -142,6 +151,30 @@ app.get('/api/getTransactions', (req, res) => {
       res.status(500).json({ message: 'Error fetching transactions', err });
     });
 });
+
+// API to fetch expenses for the dashboard
+app.get('/api/getExpense', (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const { startDate, endDate } = req.query;
+  const filter = { userId: req.session.user._id };
+
+  // If startDate and endDate are provided, filter the expenses by date range
+  if (startDate && endDate) {
+    filter.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
+  }
+
+  Expense.find(filter)
+    .then((expenses) => {
+      res.json(expenses);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: 'Error fetching expenses', err });
+    });
+});
+
 
 
 // Route to get transaction details
@@ -217,13 +250,13 @@ const Expense = require('./models/Expense');
 
 // API to add an expense
 app.post('/api/addExpense', upload.single('image'), (req, res) => {
-  console.log('File upload attempt:', req.file); // Log uploaded file details
+  //console.log('File upload attempt:', req.file); // Log uploaded file details
 
-  if (!req.file) {
+ /* if (!req.file) {
     return res.status(400).json({ message: 'File upload failed!' });
-  }
+  } */
 
-  const { amount, category, description, date } = req.body;
+  const { amount, category, description='', date } = req.body;
   const userId = req.session.user._id; // Assuming the user object is stored in the session
 
   const expense = new Expense({
@@ -231,7 +264,7 @@ app.post('/api/addExpense', upload.single('image'), (req, res) => {
     category,
     description,
     date,
-    image: req.file ? `/uploads/${req.file.filename}` : null, // Use relative URL for image path
+    image: req.file ? `/uploads/${req.file.filename}` : null,// Use relative URL for image path
     userId,
   });
 
@@ -244,20 +277,6 @@ app.post('/api/addExpense', upload.single('image'), (req, res) => {
     });
 });
 
-// API to fetch expenses for the dashboard
-app.get('/api/getExpense', (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-
-  Expense.find({ userId: req.session.user._id })
-    .then((expenses) => {
-      res.json(expenses);
-    })
-    .catch((err) => {
-      res.status(500).json({ message: 'Error fetching expenses', err });
-    });
-});
 
 // Route to get expense details
 app.get('/api/getExpense/:id', async (req, res) => {
@@ -289,7 +308,9 @@ app.post('/api/updateExpense', upload.single('image'), async (req, res) => {
     expense.date = new Date(date);
 
     if (req.file) {
-      expense.image = `/uploads/${req.file.filename}`; // Update image path
+      expense.image = `/uploads/${req.file.filename}`;
+
+ // Update image path
     }
 
     await expense.save();
@@ -314,49 +335,44 @@ app.delete('/api/deleteExpense/:id', async (req, res) => {
 
 
 // API Route for Data Visualization
+// API Route for Data Visualization
 app.get('/api/visualizeData', async (req, res) => {
-  const userId = req.session.userId; // Retrieve user ID from the session
-  const { dataType, startDate, endDate } = req.query;
-
-  // Ensure session is valid and user is logged in
+  
   if (!req.session.user) {
-    return res.status(401).json({ message: 'Unauthorized. Please log in.' });
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 
-  // Ensure required query parameters are present
-  if (!dataType || !startDate || !endDate) {
-    return res.status(400).json({ message: 'Missing required query parameters: dataType, startDate, or endDate' });
-  }
+  const { dataType, startDate, endDate } = req.query;
 
   try {
     // Parse date range
     const start = new Date(startDate);
     const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999); // Set the end of the day for the date range
+    end.setHours(23, 59, 59, 999); // Set end of day for the date range
 
-    // Initialize variables for income and expense data
+    // Initialize variables
     let incomeData = [];
     let expenseData = [];
     let combinedCategories = [];
     let combinedData = [];
 
-    // Fetch income data for the logged-in user and within the date range
+    // Fetch income data if applicable
     if (dataType === 'income' || dataType === 'both') {
       incomeData = await Income.find({
-        userId: userId, // Ensure that we only fetch income for the current user
+        userId: req.session.user._id, // Only fetch income data for the logged-in user
         date: { $gte: start, $lte: end }
-      }).sort({ date: 1 }) || []; // Default to an empty array if no data found
+      }).sort({ date: 1 }) || []; // Ensure incomeData is always an array
     }
 
-    // Fetch expense data for the logged-in user and within the date range
+    // Fetch expense data if applicable
     if (dataType === 'expense' || dataType === 'both') {
       expenseData = await Expense.find({
-        userId: userId, // Ensure that we only fetch expenses for the current user
+        userId: req.session.user._id, // Only fetch income data for the logged-in user
         date: { $gte: start, $lte: end }
-      }).sort({ date: 1 }) || []; // Default to an empty array if no data found
+      }).sort({ date: 1 }) || []; // Ensure expenseData is always an array
     }
 
-    // Combine categories from both income and expense
+    // Add unique categories from both income and expense
     combinedCategories = [
       ...new Set([
         ...incomeData.map(i => i.category),
@@ -377,7 +393,7 @@ app.get('/api/visualizeData', async (req, res) => {
       return incomeSum + expenseSum; // Total amount for the category
     });
 
-    // Respond with the processed data for visualization
+    // Respond with processed data
     res.json({
       categories: combinedCategories,
       data: combinedData
@@ -388,8 +404,8 @@ app.get('/api/visualizeData', async (req, res) => {
   }
 });
 
-
-// Start server
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
+
+

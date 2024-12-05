@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -97,6 +98,7 @@
 
     /* Chart Container */
     .chart-container {
+      position: relative;
       background-color: #fff;
       padding: 20px;
       border-radius: 8px;
@@ -104,6 +106,16 @@
       margin-top: 30px;
     }
 
+    .no-data {
+      display: none;
+      font-size: 1.3rem;
+      color: #ff0000;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
   </style>
 </head>
 
@@ -175,6 +187,7 @@
       <!-- Chart Container -->
       <section class="chart-container">
         <canvas id="incomeExpenseChart"></canvas>
+        <div id="noDataMessage" class="no-data">No data available to visualize</div>
       </section>
     </main>
   </div>
@@ -210,11 +223,8 @@
       const startDate = document.getElementById('startDate').value;
       const endDate = document.getElementById('endDate').value;
   
-// Assume the current user's session data is available (e.g., sessionStorage or a cookie)
-const userId = sessionStorage.getItem('userId');  // or fetch the user ID from a global variable or cookie
-
       // Fetch data from the API
-      fetch(`/api/visualizeData?dataType=${dataType}&startDate=${startDate}&endDate=${endDate}&userId=${userId}`)
+      fetch(`/api/visualizeData?dataType=${dataType}&startDate=${startDate}&endDate=${endDate}`)
         .then(response => {
           if (!response.ok) {
             throw new Error('Failed to fetch data from the server');
@@ -225,6 +235,17 @@ const userId = sessionStorage.getItem('userId');  // or fetch the user ID from a
           const labels = data.categories || [];
           const chartData = data.data || [];
   
+          // Show "No data available" if no data is returned
+          const noDataMessage = document.getElementById('noDataMessage');
+          if (labels.length === 0 || chartData.length === 0) {
+            noDataMessage.style.display = 'block';
+            if (chartInstance) {
+              chartInstance.destroy();
+            }
+            return;
+          } else {
+            noDataMessage.style.display = 'none';
+          }
           // Destroy the previous chart if it exists
           if (chartInstance) {
             chartInstance.destroy();

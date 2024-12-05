@@ -153,6 +153,7 @@
         <div class="mb-4">
           <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
           <select id="category" name="category" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">Select Category</option>
             <option value="Food">Food</option>
             <option value="Transport">Transport</option>
             <option value="Entertainment">Entertainment</option>
@@ -164,7 +165,7 @@
 
         <!-- Description -->
         <div class="mb-4">
-          <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+          <label for="description" class="block text-sm font-medium text-gray-700">Description (Optional)</label>
           <input type="text" id="description" name="description" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Describe the expense">
         </div>
 
@@ -187,6 +188,8 @@
       </form>
     </section>
   </main>
+
+  <div id="notification" class="fixed top-5 left-1/2 transform -translate-x-1/2 p-4 text-white rounded-lg opacity-0 translate-y-5 transition-all"></div>
 
   <script>
     // Fetch the username from session data
