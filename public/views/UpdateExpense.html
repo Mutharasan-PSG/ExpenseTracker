@@ -125,18 +125,24 @@
       <a href="AddExpense.html" class="block py-3 px-6 hover-link rounded">📉 ADD EXPENSE</a>
       <a href="visualization.html" class="block py-3 px-6 hover-link rounded">📊 VISUALIZE</a>
     </nav>
+    <br><br><br><br><br><br>
+    <div class="mt-auto p-6 text-black">
+      <button type="button" onclick="window.location.href='/logout'"  class="flex items-center text-black font-medium hover:transition-all">
+        <img src="assets/logo.png" alt="Logo" class="w-6 h-6 mr-2"> Logout
+      </a>
+    </div>
   </aside>
 
 
-   <!-- Main Content -->
-   <main class="ml-64 min-h-screen p-8 bg-gray-100">
-    <!-- Header -->
-    <header class="flex justify-between items-center bg-gradient-to-r from-blue-600 to-indigo-780 text-white p-6 shadow-lg rounded-lg">
-      <h1 id="welcome-message" class="text-2xl font-semibold">Welcome, <span id="username">User</span>!</h1>
-      <a href="/logout" class="flex items-center text-black font-medium hover:underline">
-        <img src="assets/logo.png" alt="Logo" class="w-6 h-6 mr-2"> Logout
-      </a>
-    </header>
+    <!-- Main Content -->
+    <main class="ml-64 min-h-screen p-8 bg-gray-100">
+      <!-- Header -->
+      <header class="flex justify-between items-center bg-gradient-to-r from-blue-600 to-indigo-780 text-white p-6 shadow-lg rounded-lg">
+        <!-- Dashboard Title -->
+        <h1 class="text-2xl font-bold text-white">Expense</h1>
+        <!-- Username -->
+        <span id="username" class="text-xl font-semibold text-black"></span>
+      </header>
     
     <!-- Update Expense Form -->
     <section class="mt-8 bg-white rounded-lg shadow p-6">
@@ -191,6 +197,19 @@
   </main>
 
   <script>
+
+  // Fetch the username from session data
+  fetch('/api/getUsername')
+  .then(response => response.json())
+  .then(data => {
+    if (data.username) {
+      document.getElementById('username').textContent = data.username;
+    } else {
+      document.getElementById('username').textContent = 'Guest';
+    }
+  });
+
+
     // Get transaction ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     const transactionId = urlParams.get('id');
@@ -289,6 +308,21 @@
         showNotification(notificationMessage, type);
       }
     }
+
+
+    // Get the current date in local time
+  const dateInput = document.getElementById('date');
+  const today = new Date();
+
+  // Format the date correctly as yyyy-mm-dd for the local timezone
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+  const day = String(today.getDate()).padStart(2, '0'); // Add leading zero if needed
+
+  const formattedDate = `${year}-${month}-${day}`;
+
+  // Set the max attribute to the formatted local date
+  dateInput.setAttribute('max', formattedDate);
   </script>
 </body>
 </html>

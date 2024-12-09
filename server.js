@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({
   secret: 'your-secret-key',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
 }));
 
 // Serve static files
@@ -68,7 +68,6 @@ app.get('/api/getUsername', (req, res) => {
     res.json({ username: 'Guest' });
   }
 });
-
 
 app.get('/views/login.html', (req, res) => {
   const filePath = path.join(__dirname, 'public', 'views', 'login.html');
@@ -405,7 +404,6 @@ app.get('/api/visualizeData', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
-
 

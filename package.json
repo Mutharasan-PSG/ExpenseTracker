@@ -16,7 +16,7 @@
     "expense_tracker": "file:",
     "express": "^4.21.1",
     "express-session": "^1.18.1",
-    "mongoose": "^8.8.2",
+    "mongoose": "^8.8.3",
     "nodemailer": "^6.9.16",
     "nodemon": "^3.1.7",
     "path": "^0.12.7"

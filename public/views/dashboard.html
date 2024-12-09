@@ -143,18 +143,24 @@
       <a href="AddExpense.html" class="block py-3 px-6 hover-link rounded">📉 ADD EXPENSE</a>
       <a href="visualization.html" class="block py-3 px-6 hover-link rounded">📊 VISUALIZE</a>
     </nav>
+    <br><br><br><br><br><br>
+    <div class="mt-auto p-6 text-black">
+      <button type="button" onclick="window.location.href='/logout'"  class="flex items-center text-black font-medium hover:transition-all">
+        <img src="assets/logo.png" alt="Logo" class="w-6 h-6 mr-2"> Logout
+      </a>
+    </div>
   </aside>
 
 
-   <!-- Main Content -->
-   <main class="ml-64 min-h-screen p-8 bg-gray-100">
-    <!-- Header -->
-    <header class="flex justify-between items-center bg-gradient-to-r from-blue-600 to-indigo-780 text-white p-6 shadow-lg rounded-lg">
-      <h1 id="welcome-message" class="text-2xl font-semibold">Welcome, <span id="username">User</span>!</h1>
-      <a href="/logout" class="flex items-center text-black font-medium hover:underline">
-        <img src="assets/logo.png" alt="Logo" class="w-6 h-6 mr-2"> Logout
-      </a>
-    </header>
+  <!-- Main Content -->
+<main class="ml-64 min-h-screen p-8 bg-gray-100">
+  <!-- Header -->
+  <header class="flex justify-between items-center bg-gradient-to-r from-blue-600 to-indigo-780 text-white p-6 shadow-lg rounded-lg">
+    <!-- Dashboard Title -->
+    <h1 class="text-2xl font-bold text-white">Dashboard</h1>
+    <!-- Username -->
+    <span id="username" class="text-xl font-semibold text-black"></span>
+  </header>
     
 
     <!-- Dashboard Metrics -->
@@ -253,6 +259,25 @@
 fetch('/api/getUsername')
 .then(response => response.json())
 .then(data => {
+  const username = data.username || 'Guest'; // Default to 'Guest' if no username
+   // Set default avatar with the first letter of the username
+   const firstLetter = username.charAt(0).toUpperCase();
+   const avatarElement = document.getElementById("avatar");
+   
+   // If image URL is available, replace with image (for now, empty string)
+   const imageUrl = ''; // If you had an image URL, set it here
+   if (imageUrl) {
+     avatarElement.style.backgroundImage = `url(${imageUrl})`;
+     avatarElement.style.backgroundSize = 'cover';
+   } else {
+     avatarElement.textContent = firstLetter;
+   }
+}); 
+
+// Fetch the username from session data
+fetch('/api/getUsername')
+.then(response => response.json())
+.then(data => {
   document.getElementById('username').textContent = data.username || 'Guest';
 });
 
@@ -328,6 +353,22 @@ const getCurrentMonthRange = () => {
 };
 
 const { startDate, endDate } = getCurrentMonthRange();
+
+// Set the maximum date for date inputs to today's date
+const setDateRestrictions = () => {
+  const today = new Date();
+  
+  // Format the date in 'YYYY-MM-DD' format using local time
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+  const day = String(today.getDate()).padStart(2, '0'); // Add leading zero if needed
+
+  const formattedDate = `${year}-${month}-${day}`;
+
+  // Set the max attribute to the formatted local date
+  document.getElementById('start-date').setAttribute('max', formattedDate);
+  document.getElementById('end-date').setAttribute('max', formattedDate);
+};
 
 
 // Function to create a transaction row dynamically
@@ -465,7 +506,9 @@ const parseNotificationFromHash = () => {
 // Call functions on page load
 window.onload = () => {
   parseNotificationFromHash();   // Parse the notification hash when the page loads
-fetchDashboardData(startDate,endDate);
+  setDateRestrictions();
+  const { startDate, endDate } = getCurrentMonthRange();
+  fetchDashboardData(startDate, endDate);
 };
 
 

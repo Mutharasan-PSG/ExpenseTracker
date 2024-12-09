@@ -132,17 +132,23 @@
       <a href="AddExpense.html" class="block py-3 px-6 hover-link rounded">📉 ADD EXPENSE</a>
       <a href="visualization.html" class="block py-3 px-6 hover-link rounded">📊 VISUALIZE</a>
     </nav>
+    <br><br><br><br><br><br>
+    <div class="mt-auto p-6 text-black">
+      <button type="button" onclick="window.location.href='/logout'"  class="flex items-center text-black font-medium hover:transition-all">
+        <img src="assets/logo.png" alt="Logo" class="w-6 h-6 mr-2"> Logout
+      </a>
+    </div>
   </aside>
 
 
-   <!-- Main Content -->
-   <main class="ml-64 min-h-screen p-8 bg-gray-100">
+  <!-- Main Content -->
+  <main class="ml-64 min-h-screen p-8 bg-gray-100">
     <!-- Header -->
     <header class="flex justify-between items-center bg-gradient-to-r from-blue-600 to-indigo-780 text-white p-6 shadow-lg rounded-lg">
-      <h1 class="text-2xl font-semibold">Data Visualization</h1>
-      <a href="/logout" class="flex items-center text-black font-medium hover:underline">
-        <img src="assets/logo.png" alt="Logo" class="w-6 h-6 mr-2"> Logout
-      </a>
+      <!-- Dashboard Title -->
+      <h1 class="text-2xl font-bold text-white">Data Visualization</h1>
+      <!-- Username -->
+      <span id="username" class="text-xl font-semibold text-black"></span>
     </header>
 
     <br>    
@@ -193,6 +199,19 @@
   </div>
 
   <script>
+
+  // Fetch the username from session data
+  fetch('/api/getUsername')
+  .then(response => response.json())
+  .then(data => {
+    if (data.username) {
+      document.getElementById('username').textContent = data.username;
+    } else {
+      document.getElementById('username').textContent = 'Guest';
+    }
+  });
+
+
     const ctx = document.getElementById('incomeExpenseChart').getContext('2d');
     let chartInstance;
   
@@ -291,6 +310,28 @@
           console.error('Error fetching data:', error);
         });
     };
+
+
+    // Set the maximum date for date inputs to today's date
+const setDateRestrictions = () => {
+  const today = new Date();
+  
+  // Format the date in 'YYYY-MM-DD' format using local time
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+  const day = String(today.getDate()).padStart(2, '0'); // Add leading zero if needed
+
+  const formattedDate = `${year}-${month}-${day}`;
+
+  // Set the max attribute to the formatted local date
+  document.getElementById('startDate').setAttribute('max', formattedDate);
+  document.getElementById('endDate').setAttribute('max', formattedDate);
+};
+
+// Call functions on page load
+window.onload = () => {
+  setDateRestrictions();
+};
   </script>
 </body>
 </html>

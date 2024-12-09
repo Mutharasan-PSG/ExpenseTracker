@@ -138,3 +138,5 @@ loginForm.addEventListener("submit", async (e) => {
     showModalStatus(loginModal, "An error occurred. Please try again.", "error");
   }
 });
+
+
